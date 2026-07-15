@@ -49,7 +49,7 @@
 
         /* Compass Styling Dinamis */
         .compass-container { 
-            width: 63%; /* Skala dinamis mengikuti container luar (240px dari 380px) */
+            width: 63%; 
             aspect-ratio: 1 / 1;
             border-radius: 50%; 
             border: 2px solid rgba(255,255,255,0.2); 
@@ -85,7 +85,6 @@
         
         .katex-display { overflow-x: auto; overflow-y: hidden; padding-bottom: 8px; margin: 0.5em 0; }
         
-        /* PENGATURAN KHUSUS CETAK (PRINT) */
         @media print {
             body { background: white; color: black; min-height: auto; font-family: serif; }
             .no-print, .blob, nav, #map-container, #input-panel { display: none !important; }
@@ -110,6 +109,29 @@
             @page { margin: 1.5cm; }
         }
         .print-header { display: none; }
+        
+        /* Tema Terang / Light Mode */
+        body { transition: background-color 0.3s, color 0.3s; }
+        body.light-mode { background-color: #f8fafc; color: #0f172a; }
+        body.light-mode .glass-card { background: rgba(255, 255, 255, 0.8); border: 1px solid rgba(0, 0, 0, 0.1); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); }
+        body.light-mode input { background: rgba(255, 255, 255, 0.9) !important; border: 1px solid rgba(0, 0, 0, 0.2) !important; color: #0f172a !important; }
+        body.light-mode input::placeholder { color: rgba(0, 0, 0, 0.4) !important; }
+        body.light-mode .text-white:not(button):not(i) { color: #0f172a !important; }
+        body.light-mode .text-gray-200, body.light-mode .text-gray-300, body.light-mode .text-gray-400 { color: #475569 !important; }
+        body.light-mode .border-gray-600, body.light-mode .border-white\/10, body.light-mode .border-white\/5 { border-color: rgba(0,0,0,0.1) !important; }
+        body.light-mode .bg-white\/5 { background: rgba(0,0,0,0.03) !important; }
+        body.light-mode .bg-black\/20, body.light-mode .bg-black\/30 { background: rgba(255,255,255,0.7) !important; border: 1px solid rgba(0,0,0,0.1) !important; }
+        body.light-mode .compass-container { background: radial-gradient(circle, rgba(0,0,0,0.03) 0%, rgba(0,0,0,0) 100%); border-color: rgba(0,0,0,0.1); box-shadow: inset 0 0 20px rgba(0,0,0,0.05), 0 10px 30px rgba(0,0,0,0.1); }
+        body.light-mode .compass-mark { color: rgba(0,0,0,0.7); }
+        body.light-mode #arc-labels div { background: rgba(255,255,255,0.95); color: #0f172a; border-color: rgba(0,0,0,0.1); }
+        body.light-mode .bg-clip-text { background: linear-gradient(to right, #0f172a, #334155); -webkit-background-clip: text; color: transparent !important; }
+        body.light-mode #res-azimuth { background: linear-gradient(to right, #059669, #0891b2); -webkit-background-clip: text; color: transparent !important; }
+        body.light-mode #map { filter: none; }
+        body.light-mode .blob-1 { background: #cbd5e1; }
+        body.light-mode .blob-2 { background: #a7f3d0; }
+        
+        /* Tambahan Perbaikan Kontras Kompas */
+        body.light-mode .compass-direction-text { color: #0f172a !important; }
     </style>
 </head>
 <body class="pb-10 md:pb-20 relative antialiased selection:bg-emerald-500/30">
@@ -125,8 +147,13 @@
                 </div>
                 <span class="bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">Madep Kiblat</span>
             </div>
-            <div class="text-[10px] sm:text-xs text-gray-400 border border-gray-600 px-3 py-1.5 rounded-full flex items-center gap-2">
-                <i class="fa-solid fa-laptop-code text-emerald-400"></i> <span class="hidden sm:inline">Dev:</span> Surya Qalandar
+            <div class="flex items-center gap-2 sm:gap-3">
+                <button id="theme-toggle" onclick="toggleTheme()" class="text-gray-400 hover:text-emerald-400 transition-colors p-2 rounded-full border border-gray-600 hover:border-emerald-400 flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9" title="Ganti Tema">
+                    <i class="fa-solid fa-sun" id="theme-icon"></i>
+                </button>
+                <div class="text-[10px] sm:text-xs text-gray-400 border border-gray-600 px-3 py-1.5 rounded-full flex items-center gap-2">
+                    <i class="fa-solid fa-laptop-code text-emerald-400"></i> <span class="hidden sm:inline">Dev:</span> Surya Qalandar
+                </div>
             </div>
         </div>
     </nav>
@@ -138,10 +165,8 @@
             <p>Dihitung menggunakan metode Ilmu Falak (Spherical Trigonometry) & WGS84</p>
         </div>
 
-        <!-- 12-Column Responsive Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 md:gap-8">
             
-            <!-- PANEL KIRI: INPUT (Lebar 5 dari 12 di Layar Besar) -->
             <div id="input-panel" class="glass-card p-5 sm:p-6 md:p-8 rounded-3xl lg:col-span-5 no-print flex flex-col justify-between h-full">
                 <div>
                     <h2 class="font-bold text-base md:text-lg mb-5 md:mb-6 flex items-center gap-2 text-white">
@@ -175,17 +200,14 @@
                 </div>
             </div>
 
-            <!-- PANEL KANAN: KOMPAS VISUAL (Lebar 7 dari 12 di Layar Besar) -->
             <div id="result-panel" class="glass-card p-5 sm:p-6 md:p-8 rounded-3xl lg:col-span-7 flex flex-col justify-center items-center text-center overflow-hidden min-h-[350px]">
                 <div class="mb-4 md:mb-6 w-full">
                     <h2 class="text-[11px] md:text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Azimut Kiblat Utama</h2>
                     <div class="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-cyan-300 drop-shadow-md mb-1" id="res-azimuth">0.00°</div>
                 </div>
 
-                <!-- Wadah Adaptif Kompas (Mempertahankan Square 1:1) -->
                 <div class="relative flex justify-center items-center w-full max-w-[320px] sm:max-w-[380px] md:max-w-[420px] aspect-square mx-auto">
                     
-                    <!-- SVG Busur Responsif dengan ViewBox (Skala Otomatis) -->
                     <svg id="arcs-svg" class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 380 380" preserveAspectRatio="xMidYMid meet" style="z-index: 1;">
                         <defs>
                             <marker id="arrow-utsb" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
@@ -198,11 +220,9 @@
                                 <path d="M 0 0 L 6 3 L 0 6 z" fill="#f59e0b" />
                             </marker>
                         </defs>
-                        <!-- Grup Garis yang diinjeksi via JS -->
                         <g id="arcs-group"></g>
                     </svg>
 
-                    <!-- Kompas Tengah (Berbasis % Dari Induknya) -->
                     <div class="compass-container absolute" id="compass-ui" style="z-index: 10;">
                         <div class="compass-rose">
                             <span class="compass-mark mark-n">U</span>
@@ -216,15 +236,12 @@
                         </div>
                     </div>
 
-                    <!-- Lapis Label Adaptif Berbasis Persentase -->
                     <div id="arc-labels" class="absolute inset-0 pointer-events-none" style="z-index: 20;">
-                        <!-- Label akan di-inject ke sini oleh JS -->
                     </div>
                 </div>
             </div>
         </div>
         
-        <!-- PANEL EDUKASI: PENJABARAN RUMUS -->
         <div id="step-by-step-section" class="glass-card mt-5 md:mt-8 p-5 sm:p-6 md:p-8 rounded-3xl hidden">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 border-b border-white/10 pb-4 no-print gap-4">
                 <h2 class="font-bold text-lg md:text-xl flex items-center gap-2 text-white">
@@ -233,11 +250,9 @@
             </div>
             
             <div id="step-by-step-content" class="text-sm md:text-base text-gray-200">
-                <!-- Konten digenerate oleh JavaScript -->
             </div>
         </div>
 
-        <!-- PANEL PETA LEAFLET (Responsif Tinggi) -->
         <div id="map-container" class="glass-card mt-5 md:mt-8 p-4 md:p-6 rounded-3xl no-print">
             <h2 class="font-bold text-base md:text-lg mb-4 flex items-center gap-2 text-white">
                 <i class="fa-solid fa-map text-emerald-400"></i> Peta Garis Geodesik WGS84
@@ -257,7 +272,6 @@
         const KAABA_LON = 39.826206;
         let map, userMarker, kaabaMarker, geodesicPolyline;
 
-        // Inisialisasi Peta Leaflet
         function initMap() {
             try {
                 map = L.map('map').setView([-7.5, 111.0], 5);
@@ -274,8 +288,6 @@
                 console.warn("Leaflet map initialization failed: ", e);
             }
         }
-
-        // --- SISTEM PENGGAMBARAN BUSUR & TEKS HTML (Responsif Penuh) ---
 
         function polarToCartesian(cx, cy, r, angleInDegrees) {
             const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
@@ -303,7 +315,6 @@
             const group = document.getElementById('arcs-group');
             const labelsContainer = document.getElementById('arc-labels');
             
-            // ViewBox SVG kita 380x380, pusat 190.
             const cx = 190, cy = 190;
             const rUTSB = 135; 
             const r1 = 155;    
@@ -312,11 +323,8 @@
             let svgHtml = '';
             let labelsHtml = '';
 
-            // Sistem Teks Label Berbasis Persentase Ruang!
-            // Agar label HTML menempel akurat terlepas dari seberapa besar/kecil layarnya
             const createLabel = (text, r, angle, textColor, borderColor) => {
                 const rad = (angle - 90) * Math.PI / 180;
-                // Hitung posisi persen dari titik tengah
                 const dxPercent = (r * Math.cos(rad) / cx) * 50; 
                 const dyPercent = (r * Math.sin(rad) / cy) * 50;
                 
@@ -324,16 +332,14 @@
                 return `<div class="absolute bg-slate-900/90 border ${borderColor} ${textColor} text-[9px] sm:text-[11px] font-mono font-bold px-1.5 sm:px-2 py-0.5 rounded shadow-md whitespace-nowrap" style="${style}">${text}</div>`;
             };
 
-            // Busur UTSB (Azimut 360)
             if (az > 0.5) {
                 svgHtml += `<path d="${describeArc(cx, cy, rUTSB, 0, az, true)}" fill="none" stroke="#3b82f6" stroke-width="2" stroke-dasharray="4,3" marker-end="url(#arrow-utsb)" />`;
                 labelsHtml += createLabel(`UTSB ${az.toFixed(1)}°`, rUTSB, az / 2, 'text-blue-400', 'border-blue-500/50');
             }
 
-            // Busur Detail (Tergantung Kuadran)
             if (az >= 270 && az <= 360) {
-                let a1 = 360 - az; // U-B
-                let a2 = az - 270; // B-U
+                let a1 = 360 - az; 
+                let a2 = az - 270; 
                 
                 svgHtml += `<path d="${describeArc(cx, cy, r1, 360, az, false)}" fill="none" stroke="#10b981" stroke-width="2.5" marker-end="url(#arrow-ub)" />`;
                 svgHtml += `<path d="${describeArc(cx, cy, r2, 270, az, true)}" fill="none" stroke="#f59e0b" stroke-width="2.5" marker-end="url(#arrow-bu)" />`;
@@ -342,8 +348,8 @@
                 labelsHtml += createLabel(`B-U ${a2.toFixed(1)}°`, r2 + (a2 < 30 ? 14 : 0), 270 + (a2 / 2), 'text-amber-400', 'border-amber-500/50');
             
             } else if (az >= 0 && az < 90) {
-                let a1 = az; // U-T
-                let a2 = 90 - az; // T-U
+                let a1 = az; 
+                let a2 = 90 - az; 
                 
                 svgHtml += `<path d="${describeArc(cx, cy, r1, 0, az, true)}" fill="none" stroke="#10b981" stroke-width="2.5" marker-end="url(#arrow-ub)" />`;
                 svgHtml += `<path d="${describeArc(cx, cy, r2, 90, az, false)}" fill="none" stroke="#f59e0b" stroke-width="2.5" marker-end="url(#arrow-bu)" />`;
@@ -352,8 +358,8 @@
                 labelsHtml += createLabel(`T-U ${a2.toFixed(1)}°`, r2 + (a2 < 30 ? 14 : 0), 90 - (a2 / 2), 'text-amber-400', 'border-amber-500/50');
             
             } else if (az >= 90 && az < 180) {
-                let a1 = az - 90; // T-S
-                let a2 = 180 - az; // S-T
+                let a1 = az - 90; 
+                let a2 = 180 - az; 
                 
                 svgHtml += `<path d="${describeArc(cx, cy, r1, 90, az, true)}" fill="none" stroke="#10b981" stroke-width="2.5" marker-end="url(#arrow-ub)" />`;
                 svgHtml += `<path d="${describeArc(cx, cy, r2, 180, az, false)}" fill="none" stroke="#f59e0b" stroke-width="2.5" marker-end="url(#arrow-bu)" />`;
@@ -362,8 +368,8 @@
                 labelsHtml += createLabel(`S-T ${a2.toFixed(1)}°`, r2 + (a2 < 30 ? 14 : 0), 180 - (a2 / 2), 'text-amber-400', 'border-amber-500/50');
             
             } else if (az >= 180 && az < 270) {
-                let a1 = az - 180; // S-B
-                let a2 = 270 - az; // B-S
+                let a1 = az - 180; 
+                let a2 = 270 - az; 
                 
                 svgHtml += `<path d="${describeArc(cx, cy, r1, 180, az, true)}" fill="none" stroke="#10b981" stroke-width="2.5" marker-end="url(#arrow-ub)" />`;
                 svgHtml += `<path d="${describeArc(cx, cy, r2, 270, az, false)}" fill="none" stroke="#f59e0b" stroke-width="2.5" marker-end="url(#arrow-bu)" />`;
@@ -376,38 +382,36 @@
             labelsContainer.innerHTML = labelsHtml;
         }
 
-        // Teks untuk Kesimpulan Kompas
         function formatArahTexts(azimuth) {
             let descPrint = "";
             if (azimuth >= 270 && azimuth <= 360) {
                 let ub = 360 - azimuth;
                 let bu = azimuth - 270;
                 descPrint = `
-                    <div class="mb-2"><span class="font-bold text-base md:text-lg">U ${ub.toFixed(2)}° B</span> <br><span class="text-xs md:text-sm text-gray-400">(Dari Utara, geser ke Barat sejauh ${ub.toFixed(2)}°)</span></div>
-                    <div><span class="font-bold text-base md:text-lg">B ${bu.toFixed(2)}° U</span> <br><span class="text-xs md:text-sm text-gray-400">(Dari Barat, geser ke Utara sejauh ${bu.toFixed(2)}°)</span></div>`;
+                    <div class="mb-2"><span class="font-bold text-base md:text-lg compass-direction-text">U ${ub.toFixed(2)}° B</span> <br><span class="text-xs md:text-sm text-gray-500">(Dari Utara, geser ke Barat sejauh ${ub.toFixed(2)}°)</span></div>
+                    <div><span class="font-bold text-base md:text-lg compass-direction-text">B ${bu.toFixed(2)}° U</span> <br><span class="text-xs md:text-sm text-gray-500">(Dari Barat, geser ke Utara sejauh ${bu.toFixed(2)}°)</span></div>`;
             } else if (azimuth >= 0 && azimuth < 90) {
                 let ut = azimuth;
                 let tu = 90 - azimuth;
                 descPrint = `
-                    <div class="mb-2"><span class="font-bold text-base md:text-lg">U ${ut.toFixed(2)}° T</span> <br><span class="text-xs md:text-sm text-gray-400">(Dari Utara, geser ke Timur sejauh ${ut.toFixed(2)}°)</span></div>
-                    <div><span class="font-bold text-base md:text-lg">T ${tu.toFixed(2)}° U</span> <br><span class="text-xs md:text-sm text-gray-400">(Dari Timur, geser ke Utara sejauh ${tu.toFixed(2)}°)</span></div>`;
+                    <div class="mb-2"><span class="font-bold text-base md:text-lg compass-direction-text">U ${ut.toFixed(2)}° T</span> <br><span class="text-xs md:text-sm text-gray-500">(Dari Utara, geser ke Timur sejauh ${ut.toFixed(2)}°)</span></div>
+                    <div><span class="font-bold text-base md:text-lg compass-direction-text">T ${tu.toFixed(2)}° U</span> <br><span class="text-xs md:text-sm text-gray-500">(Dari Timur, geser ke Utara sejauh ${tu.toFixed(2)}°)</span></div>`;
             } else if (azimuth >= 180 && azimuth < 270) {
                 let sb = azimuth - 180;
                 let bs = 270 - azimuth;
                 descPrint = `
-                    <div class="mb-2"><span class="font-bold text-base md:text-lg">S ${sb.toFixed(2)}° B</span> <br><span class="text-xs md:text-sm text-gray-400">(Dari Selatan, geser ke Barat sejauh ${sb.toFixed(2)}°)</span></div>
-                    <div><span class="font-bold text-base md:text-lg">B ${bs.toFixed(2)}° S</span> <br><span class="text-xs md:text-sm text-gray-400">(Dari Barat, geser ke Selatan sejauh ${bs.toFixed(2)}°)</span></div>`;
+                    <div class="mb-2"><span class="font-bold text-base md:text-lg compass-direction-text">S ${sb.toFixed(2)}° B</span> <br><span class="text-xs md:text-sm text-gray-500">(Dari Selatan, geser ke Barat sejauh ${sb.toFixed(2)}°)</span></div>
+                    <div><span class="font-bold text-base md:text-lg compass-direction-text">B ${bs.toFixed(2)}° S</span> <br><span class="text-xs md:text-sm text-gray-500">(Dari Barat, geser ke Selatan sejauh ${bs.toFixed(2)}°)</span></div>`;
             } else {
                 let st = 180 - azimuth;
                 let ts = azimuth - 90;
                 descPrint = `
-                    <div class="mb-2"><span class="font-bold text-base md:text-lg">S ${st.toFixed(2)}° T</span> <br><span class="text-xs md:text-sm text-gray-400">(Dari Selatan, geser ke Timur sejauh ${st.toFixed(2)}°)</span></div>
-                    <div><span class="font-bold text-base md:text-lg">T ${ts.toFixed(2)}° S</span> <br><span class="text-xs md:text-sm text-gray-400">(Dari Timur, geser ke Selatan sejauh ${ts.toFixed(2)}°)</span></div>`;
+                    <div class="mb-2"><span class="font-bold text-base md:text-lg compass-direction-text">S ${st.toFixed(2)}° T</span> <br><span class="text-xs md:text-sm text-gray-500">(Dari Selatan, geser ke Timur sejauh ${st.toFixed(2)}°)</span></div>
+                    <div><span class="font-bold text-base md:text-lg compass-direction-text">T ${ts.toFixed(2)}° S</span> <br><span class="text-xs md:text-sm text-gray-500">(Dari Timur, geser ke Selatan sejauh ${ts.toFixed(2)}°)</span></div>`;
             }
             return descPrint;
         }
 
-        // TAMPILAN RUMUS LENGKAP
         function generateStepByStepMath(lat, lon, azimuthSpherical) {
             const toRad = x => x * Math.PI / 180;
             const selisihBujur = KAABA_LON - lon;
@@ -542,17 +546,14 @@
                 }
             }
 
-            // Animasi Angka
             animateValue("res-azimuth", 0, displayAzimuth, 1000);
             
-            // Gambar Garis Panah (Busur Derajat) beserta label HTML-nya
             drawOuterArcs(displayAzimuth);
             
             generateStepByStepMath(lat, lon, azimuthSpherical);
 
             const needle = document.getElementById('qibla-needle');
             if (needle) {
-                // Pastikan putaran jarum lewat jarak terpendek
                 let currentRot = parseFloat(needle.dataset.rotation || 0);
                 let diff = displayAzimuth - (currentRot % 360);
                 if (diff > 180) diff -= 360;
@@ -565,14 +566,12 @@
 
             updateMap(lat, lon, geodObj, isWGS84);
             
-            // Scroll ke hasil
             setTimeout(() => {
                 const target = window.innerWidth < 1024 ? 'result-panel' : 'step-by-step-section';
                 document.getElementById(target).scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 300);
         }
 
-        // Animasi angka agar terkesan hidup
         function animateValue(id, start, end, duration) {
             let startTimestamp = null;
             const step = (timestamp) => {
@@ -650,7 +649,6 @@
             performCalculation(parseFloat(latRaw), parseFloat(lonRaw));
         }
 
-        // Fitur GPS Canggih dan Presisi Tinggi
         function getLocationGPS() {
             const gpsBtn = document.getElementById('gps-btn');
             const originalText = gpsBtn.innerHTML;
@@ -663,11 +661,10 @@
             gpsBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Melacak GPS Presisi...';
             gpsBtn.disabled = true;
 
-            // Pengaturan GPS tingkat lanjut untuk akurasi maksimal
             const options = {
-                enableHighAccuracy: true, // Memaksa penggunaan perangkat keras GPS (bukan hanya IP)
-                timeout: 15000,           // Waktu tunggu maksimum 15 detik
-                maximumAge: 0             // Memastikan data selalu baru (realtime), tidak menggunakan cache
+                enableHighAccuracy: true, 
+                timeout: 15000,           
+                maximumAge: 0             
             };
 
             navigator.geolocation.getCurrentPosition(
@@ -681,10 +678,8 @@
                     gpsBtn.innerHTML = originalText;
                     gpsBtn.disabled = false;
                     
-                    // Memberikan notifikasi beserta tingkat akurasinya
                     showMessage(`GPS Presisi didapatkan! Akurasi: ±${position.coords.accuracy.toFixed(1)} meter.`);
                     
-                    // Langsung hitung secara otomatis
                     calculateManual();
                 },
                 (error) => {
@@ -702,7 +697,35 @@
             );
         }
 
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            
+            body.classList.toggle('light-mode');
+            
+            if (body.classList.contains('light-mode')) {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+                localStorage.setItem('theme', 'light');
+            } else {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        function checkTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const icon = document.getElementById('theme-icon');
+            if (savedTheme === 'light') {
+                document.body.classList.add('light-mode');
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        }
+
         window.addEventListener('load', () => {
+            checkTheme();
             setTimeout(initMap, 200);
         });
     </script>
